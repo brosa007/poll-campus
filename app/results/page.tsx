@@ -1,3 +1,4 @@
+"use client";
 // app/results/page.tsx
 import { useEffect, useState } from "react";
 
@@ -18,7 +19,9 @@ const ResultsPage = () => {
   return (
     <>
       <div className="flex flex-col items-center p-6">
-        <h1 className="text-2xl font-bold">Resultados ao Vivo</h1>
+        <h1 className="text-2xl font-bold">
+          Resultados ao Vivo
+        </h1>
         <div className="mt-6">
           <p>Opção A: {results.A} votos</p>
           <p>Opção B: {results.B} votos</p>
