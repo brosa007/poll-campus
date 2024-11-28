@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import * as React from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Label, Pie, PieChart } from "recharts";
 
 import {
@@ -13,84 +13,77 @@ import {
   CardTitle,
 } from "@/app/components/ui/card";
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/app/components/ui/chart";
-const chartData = [
-  {
-    browser: "chrome",
-    visitors: 275,
-    fill: "var(--color-chrome)",
-  },
-  {
-    browser: "safari",
-    visitors: 200,
-    fill: "var(--color-safari)",
-  },
-  {
-    browser: "firefox",
-    visitors: 287,
-    fill: "var(--color-firefox)",
-  },
-  {
-    browser: "edge",
-    visitors: 173,
-    fill: "var(--color-edge)",
-  },
-  {
-    browser: "other",
-    visitors: 190,
-    fill: "var(--color-other)",
-  },
-];
 
+interface ChartData {
+  option: string;
+  count: number;
+  fill: string;
+}
+
+// Adicione o chartConfig
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  Sim: {
+    label: "Sim",
+    color: "hsl(var(--chart-1))", // Cor para votos "Sim"
   },
-  chrome: {
-    label: "Chrome",
-    color: "hsl(var(--chart-1))",
+  Não: {
+    label: "Não",
+    color: "hsl(var(--chart-2))", // Cor para votos "Não"
   },
-  safari: {
-    label: "Safari",
-    color: "hsl(var(--chart-2))",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "hsl(var(--chart-3))",
-  },
-  edge: {
-    label: "Edge",
-    color: "hsl(var(--chart-4))",
-  },
-  other: {
-    label: "Other",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig;
+};
 
-export default function Chart() {
-  const totalVisitors = React.useMemo(() => {
+export default function LiveChart() {
+  const [chartData, setChartData] = useState<ChartData[]>(
+    []
+  );
+
+  // Fetch data from the API
+  const fetchData = async () => {
+    try {
+      const res = await fetch("/api/votes");
+      const data: ChartData[] = await res.json();
+      setChartData(data);
+    } catch (error) {
+      console.error(
+        "Erro ao carregar dados do gráfico:",
+        error
+      );
+    }
+  };
+
+  // Use setInterval to update the data periodically
+  useEffect(() => {
+    fetchData(); // Fetch data immediately on mount
+    const interval = setInterval(() => {
+      fetchData(); // Fetch data every 5 seconds
+    }, 5000);
+
+    return () => clearInterval(interval); // Clean up the interval on unmount
+  }, []);
+
+  // Calculate total votes
+  const totalVotes = useMemo(() => {
     return chartData.reduce(
-      (acc, curr) => acc + curr.visitors,
+      (acc, curr) => acc + curr.count,
       0
     );
-  }, []);
+  }, [chartData]);
 
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
-        <CardDescription>
-          January - June 2024
-        </CardDescription>
+        <CardTitle>
+          Resultados da Votação (Ao Vivo)
+        </CardTitle>
+        <CardDescription>Sim x Não</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
-          config={chartConfig}
+          config={chartConfig} // Passe o chartConfig aqui
           className="mx-auto aspect-square max-h-[250px]"
         >
           <PieChart>
@@ -100,8 +93,8 @@ export default function Chart() {
             />
             <Pie
               data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
+              dataKey="count"
+              nameKey="option"
               innerRadius={60}
               strokeWidth={5}
             >
@@ -124,14 +117,14 @@ export default function Chart() {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {totalVisitors.toLocaleString()}
+                          {totalVotes.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          Total
                         </tspan>
                       </text>
                     );
@@ -144,11 +137,11 @@ export default function Chart() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month{" "}
+          Atualizando automaticamente a cada 5 segundos{" "}
           <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Resultados em tempo real.
         </div>
       </CardFooter>
     </Card>

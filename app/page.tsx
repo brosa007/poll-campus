@@ -1,13 +1,21 @@
+"use client";
 import { Button } from "@/app/components/ui/button";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createVote } from "./_actions/add-vote";
 
 export default function Home() {
-  const [voteMessage, setVoteMessage] = useState("");
-
-  const handleVote = (option: string) => {
-    setVoteMessage(`Seu voto "${option}" foi computado!`);
-  };
-
+  const router = useRouter();
+  async function addVote(option: boolean) {
+    try {
+      await createVote({ option });
+      console.log(
+        `Voto "${option ? "Sim" : "Não"}" foi computado!`
+      );
+      router.push("/results");
+    } catch (error) {
+      console.error("Erro ao computar voto:", error);
+    }
+  }
   return (
     <div className="flex min-h-screen flex-col space-y-6 items-center justify-center p-6">
       <h1 className="font-bold text-2xl">
@@ -16,23 +24,19 @@ export default function Home() {
       <div className="flex flex-row space-x-6">
         <Button
           className="w-[200px]"
-          onClick={() => handleVote("Sim")}
+          onClick={() => addVote(true)}
         >
           Sim
         </Button>
         <Button
           className="w-[200px]"
           variant="outline"
-          onClick={() => handleVote("Não")}
+          value="Não"
+          onClick={() => addVote(false)}
         >
           Não
         </Button>
       </div>
-      {voteMessage && (
-        <div className="mt-6 text-center text-green-500 font-medium">
-          {voteMessage}
-        </div>
-      )}
     </div>
   );
 }
