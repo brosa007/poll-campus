@@ -24,15 +24,14 @@ interface ChartData {
   fill: string;
 }
 
-// Adicione o chartConfig
 const chartConfig = {
   Sim: {
     label: "Sim",
-    color: "hsl(var(--chart-1))", // Cor para votos "Sim"
+    color: "hsl(var(--chart-1))",
   },
   Não: {
     label: "Não",
-    color: "hsl(var(--chart-2))", // Cor para votos "Não"
+    color: "hsl(var(--chart-2))",
   },
 };
 
@@ -41,7 +40,6 @@ export default function LiveChart() {
     []
   );
 
-  // Fetch data from the API
   const fetchData = async () => {
     try {
       const res = await fetch("/api/votes");
@@ -55,17 +53,15 @@ export default function LiveChart() {
     }
   };
 
-  // Use setInterval to update the data periodically
   useEffect(() => {
-    fetchData(); // Fetch data immediately on mount
+    fetchData();
     const interval = setInterval(() => {
-      fetchData(); // Fetch data every 5 seconds
+      fetchData();
     }, 5000);
 
-    return () => clearInterval(interval); // Clean up the interval on unmount
+    return () => clearInterval(interval);
   }, []);
 
-  // Calculate total votes
   const totalVotes = useMemo(() => {
     return chartData.reduce(
       (acc, curr) => acc + curr.count,
@@ -74,16 +70,26 @@ export default function LiveChart() {
   }, [chartData]);
 
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
+    <Card className="flex flex-col h-screen ">
+      <CardHeader className="items-center pb-0 gap-4">
         <CardTitle>
           Resultados da Votação (Ao Vivo)
         </CardTitle>
-        <CardDescription>Sim x Não</CardDescription>
+        <CardDescription className="flex flex-row items-center space-x-2">
+          <div className="flex flex-row items-center gap-2">
+            <div className="h-6 w-6 bg-slate-950 rounded-full" />
+            Sim
+          </div>
+          <div>x</div>
+          <div className="flex flex-row items-center gap-2">
+            Não{" "}
+            <div className="h-6 w-6 bg-slate-950 rounded-full" />
+          </div>
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
-          config={chartConfig} // Passe o chartConfig aqui
+          config={chartConfig}
           className="mx-auto aspect-square max-h-[250px]"
         >
           <PieChart>

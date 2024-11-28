@@ -4,7 +4,6 @@ import { dataBase } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 interface AddVoteInput {
-  id?: string;
   option: boolean;
 }
 
