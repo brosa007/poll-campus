@@ -1,5 +1,5 @@
+import { Button } from "@/app/components/ui/button";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [voteMessage, setVoteMessage] = useState("");
@@ -14,7 +14,10 @@ export default function Home() {
         Essa é a sua primeira vez na Campus Party?
       </h1>
       <div className="flex flex-row space-x-6">
-        <Button className="w-[200px]" onClick={() => handleVote("Sim")}>
+        <Button
+          className="w-[200px]"
+          onClick={() => handleVote("Sim")}
+        >
           Sim
         </Button>
         <Button
